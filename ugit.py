@@ -12,14 +12,15 @@ import hashlib
 import machine
 import time
 import network
+import binascii
 
 global internal_tree
 
 #### -------------User Variables----------------####
 #### 
 # Default Network to connect using wificonnect()
-ssid = "Eight Rings"
-password = "O9RWEV5GP3"
+ssid = ""
+password = ""
 
 # CHANGE TO YOUR REPOSITORY INFO
 # Repository must be public
@@ -54,10 +55,15 @@ def pull(f_path,raw_url):
     except:
       print('tried to close new_file to save memory durring raw file decode')
   
-def pull_all(tree=call_trees_url,raw = raw,ignore = ignore,isconnected=False):
+def pull_all(tree=call_trees_url,raw = raw,ignore = ignore,isconnected=False,rep=None,usr=None):
   print('Version: 1.0.1')
   if not isconnected:
       wlan = wificonnect() 
+  if rep != None:
+    repository=rep
+  if usr != None:
+    user = usr   
+  print('Using: '+repository+' User: '+user)
   os.chdir('/')
   tree = pull_git_tree()
   print(tree)
@@ -150,12 +156,14 @@ def get_hash(file):
   print('get_hash: '+str(r_file))
   sha1obj = hashlib.sha1(r_file)
   hash = sha1obj.digest()
-  return(hash.hex())
+  #return(hash.hex())
+  return(binascii.hexlify(hash))
 
 def get_data_hash(data):
     sha1obj = hashlib.sha1(data)
     hash = sha1obj.digest()
-    return(hash.hex())
+    #return(hash.hex())
+    return(binascii.hexlify(hash))
   
 def is_directory(file):
   directory = False
