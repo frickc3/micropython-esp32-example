@@ -24,9 +24,9 @@ password = ""
 
 # CHANGE TO YOUR REPOSITORY INFO
 # Repository must be public
-user = 'frickc3'
+user = ''
 #repository = 'ugit_test'
-repository = 'micropython-ota-esp8266'
+repository = ''
 
 # Don't remove ugit.py from the ignore_files unless you know what you are doing :D
 # Put the files you don't want deleted or updated here use '/filename.ext'
