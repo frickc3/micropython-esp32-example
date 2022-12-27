@@ -30,7 +30,7 @@ repository = ''
 
 # Don't remove ugit.py from the ignore_files unless you know what you are doing :D
 # Put the files you don't want deleted or updated here use '/filename.ext'
-ignore_files = ['/ugit.py']
+ignore_files = ['/ugit.py','/boot.py','/test.py']
 ignore = ignore_files
 ### -----------END OF USER VARIABLES ----------####
 
@@ -56,16 +56,25 @@ def pull(f_path,raw_url):
       print('tried to close new_file to save memory durring raw file decode')
   
 def pull_all(tree=call_trees_url,raw = raw,ignore = ignore,isconnected=False,rep=None,usr=None):
+  global repository, user  
   print('Version: 1.0.1')
   if not isconnected:
-      wlan = wificonnect() 
+      wlan = wificonnect()
+  b = 0
+  if repository == '' or user == '':
+      b = 1
   if rep != None:
     repository=rep
   if usr != None:
-    user = usr   
+    user = usr
   print('Using: '+repository+' User: '+user)
   os.chdir('/')
-  tree = pull_git_tree()
+  if b == 1:
+    my_tree_url = f'https://api.github.com/repos/{user}/{repository}/git/trees/master?recursive=1'
+    my_raw_url  = f'https://raw.githubusercontent.com/{user}/{repository}/master/'
+    tree = pull_git_tree(tree_url=my_tree_url,raw=my_raw_url)  
+  else:    
+    tree = pull_git_tree()
   print(tree)
   internal_tree = build_internal_tree()
   internal_tree = remove_ignore(internal_tree)
@@ -110,10 +119,17 @@ def wificonnect(ssid=ssid,password=password):
     print('Use: like ugit.wificonnect(SSID,Password)')
     print('otherwise uses ssid,password in top of ugit.py code')
     wlan = network.WLAN(network.STA_IF)
+    if wlan.isconnected() == True:
+        return(wlan)
     wlan.active(False)
     wlan.active(True)
+    wlan.config(txpower=8.5)
     wlan.connect(ssid,password)
+    c = 0
     while not wlan.isconnected():
+        time.sleep(1)
+        c += 1
+        print('Loop: %d' % c)
         pass
     print('Wifi Connected!!')
     print(f'SSID: {ssid}')
@@ -131,6 +147,7 @@ def build_internal_tree():
 
 def add_to_tree(dir_item):
   global internal_tree
+  print(dir_item)
   if is_directory(dir_item) and len(os.listdir(dir_item)) >= 1:
     os.chdir(dir_item)
     for i in os.listdir():
@@ -168,11 +185,13 @@ def get_data_hash(data):
 def is_directory(file):
   directory = False
   try:
-    return (os.stat(file)[8] == 0)
+    #return (os.stat(file)[8] == 0)
+     return ((os.stat(file)[0] & 0x4000) != 0)
   except:
     return directory
     
 def pull_git_tree(tree_url=call_trees_url,raw = raw):
+  print(tree_url)  
   r = urequests.get(tree_url,headers={'User-Agent': 'ugit-turfptax'})
   # ^^^ Github Requires user-agent header otherwise 403
   tree = json.loads(r.content.decode('utf-8'))
