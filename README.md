@@ -1,2 +1,2 @@
 # micropython-esp32-example
-Micropython OTA example with Heltec OLED
+Micropython example with Heltec ESP32 OLED
